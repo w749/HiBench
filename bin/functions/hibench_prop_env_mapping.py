@@ -72,6 +72,9 @@ HiBenchEnvPropMapping=dict(
     # For repartition
     CACHE_IN_MEMORY="hibench.repartition.cacheinmemory",
     DISABLE_OUTPUT="hibench.repartition.disableoutput",
+    FROM_HDFS="hibench.repartition.fromhdfs",
+    # For Join
+    SPARK_SKEW_THRESHOLD="spark.skew.threshold",
 
     # For hive related workload, data scale
     PAGES="hibench.workload.pages",
@@ -84,6 +87,9 @@ HiBenchEnvPropMapping=dict(
     DATATOOLS="hibench.hibench.datatool.dir",
     BAYES_BASE_HDFS="hibench.bayes.base.hdfs",
     NGRAMS="hibench.bayes.ngrams",
+    BAYES_USE_DENSE="hibench.bayes.use_dense",
+    BAYES_DENSE_EXAMPLES="hibench.bayes.dense.examples",
+    BAYES_DENSE_FEATURES="hibench.bayes.dense.features",
     # For kmeans
     INPUT_SAMPLE="hibench.kmeans.input.sample",
     INPUT_CLUSTER="hibench.kmeans.input.cluster",
@@ -94,30 +100,41 @@ HiBenchEnvPropMapping=dict(
     MAX_ITERATION="hibench.kmeans.max_iteration",
     K="hibench.kmeans.k",
     K_STORAGE_LEVEL="hibench.kmeans.storage.level",
+    K_INIT_MODE="hibench.kmeans.initializationmode",
+    # For gmm
+    INPUT_SAMPLE_GMM="hibench.gmm.input.sample",
+    INPUT_CLUSTER_GMM="hibench.gmm.input.cluster",
+    NUM_OF_CLUSTERS_GMM="hibench.gmm.num_of_clusters",
+    NUM_OF_SAMPLES_GMM="hibench.gmm.num_of_samples",
+    SAMPLES_PER_INPUTFILE_GMM="hibench.gmm.samples_per_inputfile",
+    DIMENSIONS_GMM="hibench.gmm.dimensions",
+    MAX_ITERATION_GMM="hibench.gmm.max_iteration",
+    K_GMM="hibench.gmm.k",
+    STORAGE_LEVEL_GMM="hibench.gmm.storage.level",
     # For Logistic Regression
     NUM_EXAMPLES_LR="hibench.lr.examples",
     NUM_FEATURES_LR="hibench.lr.features",
     # For SVM
     NUM_EXAMPLES_SVM="hibench.svm.examples",
-    NUM_FEATURES_SVM="hibench.svm.examples",
+    NUM_FEATURES_SVM="hibench.svm.features",
     NUM_ITERATIONS_SVM="hibench.svm.numIterations",
     STEPSIZE_SVM="hibench.svm.stepSize",
+    SVM_STORAGE_LEVEL="hibench.svm.storage.level",
     REGPARAM_SVM="hibench.svm.regParam",
     # For ALS
     NUM_USERS_ALS="hibench.als.users",
     NUM_PRODUCTS_ALS="hibench.als.products",
-    SPARSITY_ALS="hibench.als.sparsity",
+    NUM_RATINGS_ALS="hibench.als.ratings",
     IMPLICITPREFS_ALS="hibench.als.implicitprefs",
     RANK_ALS="hibench.als.rank",
-    NUM_RECOMMENDS_ALS="hibench.als.recommends",
     NUM_ITERATIONS_ALS="hibench.als.numIterations",
     LAMBDA_ALS="hibench.als.Lambda",
-    KYRO_ALS="hibench.als.kyro",
     USERBLOCKS_ALS="hibench.als.numUserBlocks",
     PRODUCTBLOCKS_ALS="hibench.als.numProductBlocks",
     # For PCA
     NUM_EXAMPLES_PCA="hibench.pca.examples",
     NUM_FEATURES_PCA="hibench.pca.features",
+    PCA_K="hibench.pca.k",
     MAX_RESULT_SIZE_PCA ="hibench.pca.maxresultsize",
     # For Gradient Boosting Tree
     NUM_EXAMPLES_GBT="hibench.gbt.examples",
@@ -127,6 +144,14 @@ HiBenchEnvPropMapping=dict(
     MAX_BINS_GBT="hibench.gbt.maxBins",
     NUM_ITERATIONS_GBT="hibench.gbt.numIterations",
     LEARNING_RATE_GBT="hibench.gbt.learningRate",
+    # For XGBoost
+    NUM_EXAMPLES_XGBOOST="hibench.xgboost.examples",
+    NUM_FEATURES_XGBOOST="hibench.xgboost.features",
+    NUM_CLASSES_XGBOOST="hibench.xgboost.numClasses",
+    MAX_DEPTH_XGBOOST="hibench.xgboost.maxDepth",
+    MAX_BINS_XGBOOST="hibench.xgboost.maxBins",
+    NUM_ITERATIONS_XGBOOST="hibench.xgboost.numIterations",
+    LEARNING_RATE_XGBOOST="hibench.xgboost.learningRate",
     # For Random Forest
     NUM_EXAMPLES_RF="hibench.rf.examples",
     NUM_FEATURES_RF="hibench.rf.features",
@@ -145,8 +170,17 @@ HiBenchEnvPropMapping=dict(
     # For Linear Regression
     NUM_EXAMPLES_LINEAR="hibench.linear.examples",
     NUM_FEATURES_LINEAR="hibench.linear.features",
-    NUM_ITERATIONS_LINEAR="hibench.linear.numIterations",
-    STEPSIZE_LINEAR="hibench.linear.stepSize",
+    NUM_ITERATIONS_LINEAR="hibench.linear.num_iterations",
+    REG_PARAM_LINEAR="hibench.linear.regularization_param",
+    ELASTICNET_PARAM_LINEAR="hibench.linear.elasticnet_param",
+    TOL_LINEAR="hibench.linear.tolerance",
+    # For Correlation
+    NUM_EXAMPLES_CORRELATION="hibench.correlation.examples",
+    NUM_FEATURES_CORRELATION="hibench.correlation.features",
+    CORR_TYPE="hibench.correlation.corrType",
+    # For Summarizer
+    NUM_EXAMPLES_SUMMARIZER="hibench.summarizer.examples",
+    NUM_FEATURES_SUMMARIZER="hibench.summarizer.features",
     # For LDA
     NUM_DOCUMENTS_LDA="hibench.lda.num_of_documents",
     NUM_VOCABULARY_LDA="hibench.lda.num_of_vocabulary",
@@ -167,6 +201,7 @@ HiBenchEnvPropMapping=dict(
     RD_FILE_SIZE="hibench.dfsioe.read.file_size",
     WT_NUM_OF_FILES="hibench.dfsioe.write.number_of_files",
     WT_FILE_SIZE="hibench.dfsioe.write.file_size",
+    READ_ONLY="hibench.dfsioe.read_only",
     MAP_JAVA_OPTS="hibench.dfsioe.map.java_opts",
     RED_JAVA_OPTS="hibench.dfsioe.red.java_opts",
     # For NWeight

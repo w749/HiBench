@@ -19,7 +19,7 @@ File: SaxpyBlock.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.heigen;
 
 import java.io.*;
 import java.util.*;
@@ -29,6 +29,7 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
+import pegasus.MatvecUtils;
 
 // y = y + ax
 public class SaxpyBlock extends Configured implements Tool 

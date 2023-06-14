@@ -19,7 +19,7 @@ File: ScalarMult.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.heigen;
 
 import java.io.*;
 import java.util.*;
@@ -157,7 +157,7 @@ public class ScalarMult extends Configured implements Tool
 		conf.set("s", "" + s);
 		conf.setJobName("ScalarMult");
 
-		conf.setMapperClass(ScalarMult.MapStage1Text.class);        
+		conf.setMapperClass(MapStage1Text.class);
 
 		FileInputFormat.setInputPaths(conf, in_path);  
 		FileOutputFormat.setOutputPath(conf, smult_output);  

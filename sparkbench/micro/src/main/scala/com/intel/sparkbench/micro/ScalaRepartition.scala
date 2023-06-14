@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.intel.hibench.sparkbench.micro
+package com.intel.sparkbench.micro
 
 import java.util.Random
 

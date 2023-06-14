@@ -19,7 +19,7 @@ File: L1normBlock.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.heigen;
 
 import java.io.*;
 import java.util.*;
@@ -29,6 +29,8 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
+import pegasus.MatvecUtils;
+import pegasus.PegasusUtils;
 
 
 public class L1normBlock extends Configured implements Tool 

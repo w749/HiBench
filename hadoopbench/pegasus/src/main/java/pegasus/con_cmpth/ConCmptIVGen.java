@@ -19,7 +19,7 @@ File: ConCmptIVGen.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.con_cmpth;
 
 import java.io.*;
 import java.util.*;

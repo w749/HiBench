@@ -19,7 +19,7 @@ File: SaxpyTextoutput.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.heigen;
 
 import java.io.*;
 import java.util.*;
@@ -175,8 +175,8 @@ public class SaxpyTextoutput extends Configured implements Tool
 		conf.set("a", "" + a);
 		conf.setJobName("SaxpyTextoutput");
 		
-		conf.setMapperClass(SaxpyTextoutput.MapStage1.class);        
-		conf.setReducerClass(SaxpyTextoutput.RedStage1.class);
+		conf.setMapperClass(MapStage1.class);
+		conf.setReducerClass(RedStage1.class);
 
 		FileInputFormat.setInputPaths(conf, py, px);  
 		FileOutputFormat.setOutputPath(conf, saxpy_output);  

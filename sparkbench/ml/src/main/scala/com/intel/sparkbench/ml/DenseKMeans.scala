@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.intel.hibench.sparkbench.ml
+package com.intel.sparkbench.ml
 
 import org.apache.hadoop.io.LongWritable
 import org.apache.log4j.{Level, Logger}

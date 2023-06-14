@@ -18,7 +18,7 @@ File: PageRankPrep.java
  - Convert the original edge file into column-normalized adjacency matrix format.
 Version: 2.0
 ***********************************************************************/
-package pegasus;
+package pegasus.pagerank;
 
 import java.io.*;
 import java.util.*;

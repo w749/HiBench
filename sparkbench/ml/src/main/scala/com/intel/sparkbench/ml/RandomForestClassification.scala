@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.intel.hibench.sparkbench.ml
+package com.intel.sparkbench.ml
 
 import com.intel.hibench.sparkbench.common.IOCommon
 import org.apache.spark.{SparkConf, SparkContext}

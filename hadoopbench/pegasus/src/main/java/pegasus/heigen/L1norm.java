@@ -19,7 +19,7 @@ File: L1norm.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.heigen;
 
 import java.io.*;
 import java.util.*;
@@ -29,6 +29,7 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
+import pegasus.PegasusUtils;
 
 // y = y + ax
 public class L1norm extends Configured implements Tool 
@@ -108,7 +109,7 @@ public class L1norm extends Configured implements Tool
 		final JobConf conf = new JobConf(getConf(), L1norm.class);
 		conf.setJobName("L1norm");
 		
-		conf.setMapperClass(L1norm.MapStage1.class);        
+		conf.setMapperClass(MapStage1.class);
 		conf.setReducerClass(PegasusUtils.RedSumDouble.class);
 		conf.setCombinerClass(PegasusUtils.RedSumDouble.class);
 

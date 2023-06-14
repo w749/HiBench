@@ -19,7 +19,7 @@ File: GIMV.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.pegasus;
 
 import java.io.*;
 import java.util.*;

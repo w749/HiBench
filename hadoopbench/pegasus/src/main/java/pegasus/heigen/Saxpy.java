@@ -19,7 +19,7 @@ File: Saxpy.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.heigen;
 
 import java.io.*;
 import java.util.*;
@@ -173,8 +173,8 @@ public class Saxpy extends Configured implements Tool
 		conf.set("a", "" + a);
 		conf.setJobName("Lanczos_pass_saxpy");
 		
-		conf.setMapperClass(Saxpy.MapStage1.class);        
-		conf.setReducerClass(Saxpy.RedStage1.class);
+		conf.setMapperClass(MapStage1.class);
+		conf.setReducerClass(RedStage1.class);
 
 		FileInputFormat.setInputPaths(conf, py, px);  
 		FileOutputFormat.setOutputPath(conf, saxpy_output);  

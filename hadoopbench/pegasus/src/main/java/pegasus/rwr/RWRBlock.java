@@ -19,8 +19,9 @@ File: RWRBlock.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.rwr;
 
+import pegasus.*;
 import pegasus.matvec.*;
 import java.io.*;
 import java.util.*;

@@ -19,7 +19,7 @@ File: DegDist.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.degdist;
 
 import java.io.*;
 import java.util.*;

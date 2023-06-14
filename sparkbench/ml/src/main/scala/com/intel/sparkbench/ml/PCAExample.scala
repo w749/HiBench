@@ -16,7 +16,7 @@
  */
 
 // scalastyle:off println
-package com.intel.hibench.sparkbench.ml
+package com.intel.sparkbench.ml
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext

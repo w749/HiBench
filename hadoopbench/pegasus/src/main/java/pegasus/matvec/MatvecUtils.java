@@ -13,7 +13,7 @@ File: PegasusUtils.java
 Version: 0.9
 Author Email: U Kang(ukang@cs.cmu.edu), Christos Faloutsos(christos@cs.cmu.edu)
 ***********************************************************************/
-package pegasus;
+package pegasus.matvec;
 
 import java.io.*;
 import java.util.*;

@@ -14,6 +14,9 @@ hibench.yarn.executor.cores   4
 spark.executor.memory  4g
 spark.driver.memory    4g
 
+# spark skew threshold
+spark.skew.threshold    0.6
+
 # set spark parallelism property according to hibench's parallelism value
 spark.default.parallelism     ${hibench.default.map.parallelism}
 

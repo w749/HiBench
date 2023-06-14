@@ -19,7 +19,7 @@ File: PegasusUtils.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.pegasus;
 
 import pegasus.matvec.*;
 

@@ -18,7 +18,7 @@
 /*
  * Copied from org.apache.spark.examples.mllib.SparkNaiveBayes
  */
-package org.apache.spark.examples.mllib
+package com.intel.sparkbench.ml
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.mllib.linalg.Vectors

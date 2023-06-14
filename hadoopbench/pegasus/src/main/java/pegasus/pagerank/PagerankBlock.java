@@ -19,7 +19,7 @@ File: PageRankBlock.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.pagerank;
 
 import java.io.*;
 import java.util.*;
@@ -29,6 +29,8 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
+import pegasus.ConCmptBlock;
+import pegasus.PagerankNaive;
 
 public class PagerankBlock extends Configured implements Tool 
 {

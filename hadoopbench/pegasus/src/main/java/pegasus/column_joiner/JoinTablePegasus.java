@@ -19,7 +19,7 @@ File: JoinTablePegasus.java
 Version: 2.0
 ***********************************************************************/
 
-package pegasus;
+package pegasus.column_joiner;
 
 import java.io.*;
 import java.util.*;
