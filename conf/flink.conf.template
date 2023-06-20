@@ -6,3 +6,8 @@ hibench.flink.master                             HOSTNAME:PORT
 hibench.streambench.flink.parallelism            20
 hibench.streambench.flink.bufferTimeout          10
 hibench.streambench.flink.checkpointDuration     1000
+
+hibench.flink.batch.jobmanager.memory            5
+hibench.flink.batch.taskmanager.memory           5
+hibench.flink.batch.parallelism                  20
+hibench.flink.batch.slots                        5

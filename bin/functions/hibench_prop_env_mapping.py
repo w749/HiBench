@@ -251,7 +251,11 @@ HiBenchEnvPropMapping=dict(
     FLINK_HOME="hibench.streambench.flink.home",
     STREAMBENCH_FLINK_JAR="hibench.streambench.flinkbench.jar",
     STREAMBENCH_FLINK_PARALLELISM="hibench.streambench.flink.parallelism",
-
+    FLINK_BATCH_JAR="hibench.flinkbench.batch.jar",
+    JOB_MANAGER_MEMORY="hibench.flink.batch.jobmanager.memory",
+    TASK_MANAGER_MEMORY="hibench.flink.batch.taskmanager.memory",
+    FLINK_BATCH_PARALLELS="hibench.flink.batch.parallelism",
+    NUM_SLOTS="hibench.flink.batch.slots"
     )
 
 HiBenchPropEnvMapping=dict([(v,k) for k, v in HiBenchEnvPropMapping.items()])

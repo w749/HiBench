@@ -251,6 +251,23 @@ function run_flink_job(){
     execute_withlog $CMD
 }
 
+function run_flink_batch_job(){
+    CMD="${FLINK_HOME}/bin/flink run-application \
+        -t yarn-application \
+        -Dpipeline.name=FlinkBatchJob \
+        -Dyarn.application.name=FlinkBatchJob \
+        -Dtaskmanager.network.sort-shuffle.min-parallelism=1 \
+        -p ${FLINK_BATCH_PARALLELS} \
+        -Djobmanager.memory.process.size=$[${JOB_MANAGER_MEMORY} * 1024]mb \
+        -Dtaskmanager.memory.process.size=$[${TASK_MANAGER_MEMORY} * 1024]mb \
+        -Dtaskmanager.numberOfTaskSlots=${NUM_SLOTS} \
+        -c $1 \
+        ${FLINK_BATCH_JAR} \
+        $2 $3"
+    echo -e "${BGreen}Submit Flink Job: ${Green}$CMD${Color_Off}"
+    execute_withlog $CMD
+}
+
 function run_hadoop_job(){
     ENABLE_MONITOR=1
     if [ "$1" = "--without-monitor" ]; then
