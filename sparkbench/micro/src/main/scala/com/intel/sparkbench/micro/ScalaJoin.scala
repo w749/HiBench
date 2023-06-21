@@ -51,7 +51,7 @@ object ScalaJoin{
             })
         }).reduceByKey(_ + _)
 
-        joinData.join(skewData).saveAsTextFile(output)
+        skewData.join(joinData).saveAsTextFile(output)
         sc.stop()
     }
 }

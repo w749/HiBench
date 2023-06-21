@@ -30,7 +30,7 @@ import scala.util.Random
 /*
  * 准备Join数据。共输出两份数据后续用来join，其中一份包含倾斜数据和其它数据，第二份是用来join的数据，包含倾斜的key和其它的key
  */
-object ScalaJoinPrepare{
+object ScalaJoinPrepare {
     def main(args: Array[String]){
         if (args.length < 4){
             System.err.println(
@@ -46,27 +46,66 @@ object ScalaJoinPrepare{
         val separate = ","
         val skewOutput = output + "/skew"
         val joinOutput = output + "/join"
+        val joinDataSize = 100
 
         val sparkConf = new SparkConf().setAppName("ScalaJoinPrepare")
         val sc = new SparkContext(sparkConf)
 
-        val skewDataSize = (dataSize * thresholdSkew).toLong
-        val otherDataSize = dataSize - skewDataSize
-        val joinDataSize = 100
-        generateData(sc, partition, batchSize, separate, skewDataSize, skewOutput, isSkew = true)
-        generateData(sc, partition, batchSize, separate, otherDataSize, skewOutput)
-        generateData(sc, partition, batchSize, separate, joinDataSize, joinOutput, isJoin = true)
+        var partitionSizeArray = Array.empty[Long]
+        var allSizeArray = Array.empty[(Int, Long)]
+        val eachPartitionSize = dataSize / partition
+        val remainSize = dataSize - (partition * eachPartitionSize)
+        if (remainSize == 0) {
+            partitionSizeArray = Array.fill(partition)(eachPartitionSize)
+            allSizeArray = partitionSizeArray.zipWithIndex.map(kv => (kv._2, kv._1))
+        } else {
+            partitionSizeArray = Array.fill(partition - 1)(eachPartitionSize)
+            allSizeArray = (partitionSizeArray ++ Array(remainSize)).zipWithIndex.map(kv => (kv._2, kv._1))
+        }
+
+        sc.parallelize(allSizeArray, partition)
+          .keyBy(_._1)
+          .foreach(line => {
+              var fs: FileSystem = null
+              val configuration = new Configuration()
+              // 禁用FieSystem缓存
+              configuration.set("fs.hdfs.impl.disable.cache", "true")
+              this.synchronized {
+                  fs = FileSystem.get(configuration)
+              }
+              val partitionIndex = line._1
+              val allSize = line._2._2
+              val dirPath = new Path(skewOutput)
+              val filePath = new Path(s"${skewOutput}/${partitionIndex}")
+              val tmpFilePath = new Path(s"${skewOutput}/${partitionIndex}.tmp")
+              if (!fs.exists(dirPath)) fs.mkdirs(dirPath)
+
+              val skewSize = (allSize * thresholdSkew).toLong
+              val otherSize = allSize - skewSize
+
+              generateData(skewSize, batchSize, fs, filePath, tmpFilePath, isSkew = true)
+              generateData(otherSize, batchSize, fs, filePath, tmpFilePath)
+          })
+
+        val joinData = Array.fill(joinDataSize - 1) {
+            val tmpKey = WORDS_ARRAY(Random.nextInt(WORDS_ARRAY.length - 1))
+            val key = Base64.getEncoder.encodeToString(tmpKey.getBytes)
+            val value = WORDS_ARRAY(Random.nextInt(WORDS_ARRAY.length - 1))
+            key + separate + value
+        }
+        val joinSkewKV = Base64.getEncoder.encodeToString(SKEW_WORD.head.getBytes) + separate + SKEW_WORD.head
+        sc.parallelize(joinData ++ Array(joinSkewKV), 1)
+          .saveAsTextFile(joinOutput)
 
         sc.stop()
     }
 
-    def generateData(sc: SparkContext, partition: Int, batchSize: Long, separate: String, dataSize: Long, output: String, isSkew: Boolean = false, isJoin: Boolean = false): Unit = {
-        val wordsArray = if(isJoin) WORDS_ARRAY ++ SKEW_WORD else WORDS_ARRAY
+    def generateData(allSize: Long, batchSize: Long, fs: FileSystem, filePath: Path, tmpFilePath: Path, isSkew: Boolean = false, separate: String = ","): Unit = {
+        val wordsArray = WORDS_ARRAY
         val skewWord = SKEW_WORD.head
-        val batchCount = (dataSize / batchSize).toInt
-        val remainSize = dataSize - (batchCount * batchSize)
-
-        for (_ <- 0 until batchCount) {
+        val batchCount = allSize / batchSize
+        val remainSize = allSize - (batchCount * batchSize)
+        for (_ <- 0 until batchCount.toInt) {
             val array = mutable.ArrayBuffer[String]()
             var tmpBatchSize = batchSize
             while (tmpBatchSize > 0) {
@@ -79,7 +118,7 @@ object ScalaJoinPrepare{
                 array.append(key + separate + valueBuffer.toString)
                 tmpBatchSize -= 1
             }
-            writeArray(sc, array, partition, output)
+            writeArray(array, fs, filePath, tmpFilePath)
         }
 
         val array = mutable.ArrayBuffer[String]()
@@ -94,49 +133,27 @@ object ScalaJoinPrepare{
             array.append(key + separate + valueBuffer.toString)
             tmpBatchSize -= 1
         }
-        val skewKey = Base64.getEncoder.encodeToString(skewWord.getBytes)
-        array.append(skewKey + separate + skewKey)
-        writeArray(sc, array, partition, output)
-
+        writeArray(array, fs, filePath, tmpFilePath)
     }
 
-    def writeArray(sc: SparkContext, array: mutable.ArrayBuffer[String], partition: Int, output: String): Unit = {
-        sc.parallelize(array, partition).mapPartitionsWithIndex((idx, lines) => {
-            var fs: FileSystem = null
-            val configuration = new Configuration()
-            // 禁用FieSystem缓存
-            configuration.set("fs.hdfs.impl.disable.cache", "true")
-            this.synchronized {
-                fs = FileSystem.get(configuration)
-            }
-            val dirPath = new Path(output)
-            val filePath = new Path(s"${output}/${idx}")
-            val tmpFilePath = new Path(s"${output}/${idx}.tmp")
-
-            if (!fs.exists(dirPath)) fs.mkdirs(dirPath)
-            if (fs.exists(tmpFilePath)) fs.delete(tmpFilePath, false)
-            // 避免使用append，代价较高，容易报错
-            if (fs.exists(filePath)) {
-                val inputStream = fs.open(filePath)
-                val outputStream = fs.create(tmpFilePath)
-                IOUtils.copyBytes(inputStream, outputStream, 1024)
-                lines.foreach(line => outputStream.write(s"${line}\n".getBytes("UTF-8")))
-                outputStream.flush()
-                inputStream.close()
-                outputStream.close()
-                fs.delete(filePath, false)
-                fs.rename(tmpFilePath, filePath)
-            } else {
-                val stream = fs.create(filePath)
-                lines.foreach(line => stream.write(s"${line}\n".getBytes("UTF-8")))
-                stream.flush()
-                stream.close()
-            }
-            fs.close()
-
-            val part_map = scala.collection.mutable.Map[Int, String]()
-            part_map.iterator
-        }).take(1)
+    def writeArray(array: mutable.ArrayBuffer[String], fs: FileSystem, filePath: Path, tmpFilePath: Path): Unit = {
+        if (fs.exists(tmpFilePath)) fs.delete(tmpFilePath, false)
+        if (fs.exists(filePath)) {
+            val inputStream = fs.open(filePath)
+            val outputStream = fs.create(tmpFilePath)
+            IOUtils.copyBytes(inputStream, outputStream, 1024)
+            array.foreach(line => outputStream.write(s"${line}\n".getBytes("UTF-8")))
+            outputStream.flush()
+            inputStream.close()
+            outputStream.close()
+            fs.delete(filePath, false)
+            fs.rename(tmpFilePath, filePath)
+        } else {
+            val stream = fs.create(filePath)
+            array.foreach(line => stream.write(s"${line}\n".getBytes("UTF-8")))
+            stream.flush()
+            stream.close()
+        }
         array.clear()
     }
 
