@@ -18,14 +18,12 @@
 package com.intel.hibench.sparkbench.streaming
 
 import com.intel.hibench.common.HiBenchConfig
-import com.intel.hibench.common.streaming.{TestCase, StreamBenchConfig, Platform, ConfigLoader}
 import com.intel.hibench.common.streaming.metrics.MetricsUtil
-import com.intel.hibench.sparkbench.streaming.util.SparkBenchConfig
+import com.intel.hibench.common.streaming.{ConfigLoader, Platform, StreamBenchConfig, TestCase}
 import com.intel.hibench.sparkbench.streaming.application._
-import kafka.serializer.StringDecoder
+import com.intel.hibench.sparkbench.streaming.util.SparkBenchConfig
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.kafka.KafkaUtils
+import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
 import org.apache.spark.streaming.{Milliseconds, StreamingContext}
 
 /**
@@ -40,6 +38,7 @@ object RunBench {
     val master = conf.getProperty(HiBenchConfig.SPARK_MASTER)
 
     val batchInterval = conf.getProperty(StreamBenchConfig.SPARK_BATCH_INTERVAL).toInt
+    val batchMaxMessagePartition = conf.getProperty(StreamBenchConfig.SPARK_BATCH_MAX_MESSAGE_PARTITION).toLong
     val receiverNumber = conf.getProperty(StreamBenchConfig.SPARK_RECEIVER_NUMBER).toInt
     val copies = conf.getProperty(StreamBenchConfig.SPARK_STORAGE_LEVEL).toInt
     val enableWAL = conf.getProperty(StreamBenchConfig.SPARK_ENABLE_WAL).toBoolean
@@ -63,11 +62,11 @@ object RunBench {
     val reporterTopic = MetricsUtil.getTopic(Platform.SPARK, topic, producerNum, recordPerInterval, intervalSpan)
     println("Reporter Topic: " + reporterTopic)
     val reporterTopicPartitions = conf.getProperty(StreamBenchConfig.KAFKA_TOPIC_PARTITIONS).toInt
-    MetricsUtil.createTopic(zkHost, reporterTopic, reporterTopicPartitions)
+    MetricsUtil.createTopic(brokerList, reporterTopic, reporterTopicPartitions)
 
     val probability = conf.getProperty(StreamBenchConfig.SAMPLE_PROBABILITY).toDouble
     // init SparkBenchConfig, it will be passed into every test case
-    val config = SparkBenchConfig(master, benchName, batchInterval, receiverNumber, copies,
+    val config = SparkBenchConfig(master, benchName, batchInterval, batchMaxMessagePartition, receiverNumber, copies,
       enableWAL, checkPointPath, directMode, zkHost, consumerGroup, topic, reporterTopic,
       brokerList, debugMode, coreNumber, probability, windowDuration, windowSlideStep)
 
@@ -86,7 +85,10 @@ object RunBench {
     }
 
     // defind streaming context
-    val conf = new SparkConf().setMaster(config.master).setAppName(config.benchName)
+    val conf = new SparkConf()
+        .setMaster(config.master)
+        .setAppName(config.benchName)
+        .set("spark.streaming.kafka.maxRatePerPartition", s"${config.batchMaxMessagePartition}")
     val ssc = new StreamingContext(conf, Milliseconds(config.batchInterval))
     ssc.checkpoint(config.checkpointPath)
 
@@ -94,22 +96,14 @@ object RunBench {
       ssc.sparkContext.setLogLevel("ERROR")
     }
 
-    val lines: DStream[(String, String)] = if (config.directMode) {
-      // direct mode with low level Kafka API
-      KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
-        ssc, config.kafkaParams, Set(config.sourceTopic))
-
-    } else {
-      // receiver mode with high level Kafka API
-      val kafkaInputs = (1 to config.receiverNumber).map{ _ =>
-        KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
-          ssc, config.kafkaParams, Map(config.sourceTopic -> config.threadsPerReceiver), config.storageLevel)
-      }
-      ssc.union(kafkaInputs)
-    }
+    val lines = KafkaUtils.createDirectStream[String, String](
+      ssc,
+      LocationStrategies.PreferConsistent,
+      ConsumerStrategies.Subscribe[String, String](Set(config.sourceTopic), config.kafkaParams)
+    )
 
     // convent key from String to Long, it stands for event creation time.
-    val parsedLines = lines.map{ case (k, v) => (k.toLong, v) }
+    val parsedLines = lines.map(kv => (kv.key().toLong, kv.value()))
     testCase.process(parsedLines, config)
 
     ssc.start()
