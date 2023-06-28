@@ -24,7 +24,7 @@ The streaming benchmark consists of the following parts:
  
  * Supported Hadoop version: Apache Hadoop 2.x, CDH5.x, HDP 
  
- * Supported Spark version: 1.6.x, 2.0.x, 2.1.x, 2.2.x 
+ * Supported Spark version: 1.6.x, 2.0.x, 2.1.x, 2.2.x, 3.3.x
 
  * Build HiBench according to [build HiBench](build-hibench.md).
  
@@ -32,15 +32,15 @@ The streaming benchmark consists of the following parts:
  
  * Setup [ZooKeeper](http://zookeeper.apache.org/) (3.4.8 is preferred).
 
- * Setup [Apache Kafka](http://kafka.apache.org/) (0.8.2.2, scala version 2.10 is preferred).
+ * Setup [Apache Kafka](http://kafka.apache.org/) (2.0.0, scala version 2.11 is preferred).
   
  * Setup one of the streaming frameworks that you want to test.
 
-   * [Apache Spark](http://spark.apache.org/) (1.6.1, is preferred).
+   * [Apache Spark](http://spark.apache.org/) (2.4.0, is preferred).
 
    * [Apache Storm](http://storm.apache.org/) (1.0.1 is preferred).
 
-   * [Apache Flink](http://flink.apache.org/) (1.0.3 is prefered).
+   * [Apache Flink](http://flink.apache.org/) (1.14.6 is prefered).
 
    * [Apache Gearpump](http://gearpump.apache.org/) (0.8.1 is prefered)
 

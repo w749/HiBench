@@ -51,6 +51,14 @@ There are totally 27 workloads in HiBench. The workloads are divided into 6 cate
 
     Enhanced DFSIO tests the HDFS throughput of the Hadoop cluster by generating a large number of tasks performing writes and reads simultaneously. It measures the average I/O rate of each map task, the average throughput of each map task, and the aggregated throughput of HDFS cluster. Note: this benchmark doesn't have Spark corresponding implementation.
 
+7. Join (join)
+
+   This workload use the join method to join two data sources, one of which is heavily skewed.
+
+8. MapPartitions(mappartitions)
+
+   This workload use the mapPartitions method.
+
 
 **Machine Learning:**
 
@@ -144,11 +152,11 @@ There are totally 27 workloads in HiBench. The workloads are divided into 6 cate
 ### Supported Hadoop/Spark/Flink/Storm/Gearpump releases: ###
 
   - Hadoop: Apache Hadoop 2.x, CDH5, HDP
-  - Spark: Spark 1.6.x, Spark 2.0.x, Spark 2.1.x, Spark 2.2.x, Spark 2.3.x, Spark 2.4.x
-  - Flink: 1.0.3
+  - Spark: Spark 1.6.x, Spark 2.0.x, Spark 2.1.x, Spark 2.2.x, Spark 2.3.x, Spark 2.4.x, Spark 3.3.x
+  - Flink: 1.14.6
   - Storm: 1.0.1
   - Gearpump: 0.8.1
-  - Kafka: 0.8.2.2
+  - Kafka: 2.0.0
 
 ---
 
