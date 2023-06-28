@@ -59,7 +59,7 @@ object RunBench {
     val prob = conf.getProperty(StreamBenchConfig.SAMPLE_PROBABILITY).toDouble
     val reporterTopic = getReporterTopic(conf)
     val reporterTopicPartitions = conf.getProperty(StreamBenchConfig.KAFKA_TOPIC_PARTITIONS).toInt
-    MetricsUtil.createTopic(zkHost, reporterTopic, reporterTopicPartitions)
+    MetricsUtil.createTopic(brokerList, reporterTopic, reporterTopicPartitions)
 
     val windowDuration = conf.getProperty(StreamBenchConfig.FixWINDOW_DURATION).toLong
     val windowStep = conf.getProperty(StreamBenchConfig.FixWINDOW_SLIDESTEP).toLong

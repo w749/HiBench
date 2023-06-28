@@ -69,7 +69,7 @@ public class RunBench {
           conf.topic, producerNum, recordPerInterval, intervalSpan);
     }
     int reportTopicPartitions = Integer.parseInt(cl.getProperty(StreamBenchConfig.KAFKA_TOPIC_PARTITIONS));
-    MetricsUtil.createTopic(conf.zkHost, conf.reporterTopic, reportTopicPartitions);
+    MetricsUtil.createTopic(conf.brokerList, conf.reporterTopic, reportTopicPartitions);
     TestCase benchName = TestCase.withValue(conf.benchName);
 
     BenchLogUtil.logMsg("Benchmark starts... " + "  " + benchName +
