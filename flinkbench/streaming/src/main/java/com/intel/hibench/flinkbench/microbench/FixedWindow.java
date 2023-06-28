@@ -3,6 +3,7 @@ package com.intel.hibench.flinkbench.microbench;
 import com.intel.hibench.flinkbench.datasource.StreamBase;
 import com.intel.hibench.flinkbench.util.FlinkBenchConfig;
 
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -24,7 +25,7 @@ public class FixedWindow extends StreamBase {
     env.enableCheckpointing(config.checkpointDuration);
 
     createDataStream(config);
-    DataStream<Tuple2<String, String>> dataStream = env.addSource(getDataStream());
+    DataStream<Tuple2<String, String>> dataStream = env.fromSource(getDataStream(), WatermarkStrategy.noWatermarks(), "Source");
     long windowDuration = Long.parseLong(config.windowDuration);
     long windowSlideStep = Long.parseLong(config.windowSlideStep);
 

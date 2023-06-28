@@ -20,6 +20,7 @@ package com.intel.hibench.flinkbench.microbench;
 import com.intel.hibench.flinkbench.datasource.StreamBase;
 import com.intel.hibench.flinkbench.util.FlinkBenchConfig;
 
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -36,7 +37,7 @@ public class Repartition extends StreamBase {
     env.setBufferTimeout(config.bufferTimeout);
 
     createDataStream(config);
-    DataStream<Tuple2<String, String>> dataStream = env.addSource(getDataStream());
+    DataStream<Tuple2<String, String>> dataStream = env.fromSource(getDataStream(), WatermarkStrategy.noWatermarks(), "Source");
 
     dataStream.rebalance().map(
         new MapFunction<Tuple2<String, String>, Tuple2<String, String>>() {

@@ -20,6 +20,7 @@ package com.intel.hibench.flinkbench.microbench;
 import com.intel.hibench.flinkbench.datasource.StreamBase;
 import com.intel.hibench.flinkbench.util.FlinkBenchConfig;
 
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ValueState;
@@ -34,6 +35,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import com.intel.hibench.common.streaming.metrics.KafkaReporter;
 import com.intel.hibench.common.streaming.UserVisitParser;
 
+
 public class WordCount extends StreamBase {
 
   @Override
@@ -42,7 +44,7 @@ public class WordCount extends StreamBase {
     env.setBufferTimeout(config.bufferTimeout);
     env.enableCheckpointing(config.checkpointDuration);
     createDataStream(config);
-    DataStream<Tuple2<String, String>> dataStream = env.addSource(getDataStream());
+    DataStream<Tuple2<String, String>> dataStream = env.fromSource(getDataStream(), WatermarkStrategy.noWatermarks(), "Source");
     dataStream
         .map(new MapFunction<Tuple2<String, String>, Tuple2<String, Tuple2<String, Integer>>>() {
           @Override
