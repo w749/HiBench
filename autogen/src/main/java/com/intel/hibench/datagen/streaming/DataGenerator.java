@@ -20,6 +20,7 @@ package com.intel.hibench.datagen.streaming;
 import com.intel.hibench.common.HiBenchConfig;
 import com.intel.hibench.common.streaming.ConfigLoader;
 import com.intel.hibench.common.streaming.StreamBenchConfig;
+import com.intel.hibench.common.streaming.metrics.MetricsUtil;
 import com.intel.hibench.datagen.streaming.util.DataGeneratorConfig;
 import com.intel.hibench.datagen.streaming.util.KafkaSender;
 import com.intel.hibench.datagen.streaming.util.RecordSendTask;
@@ -48,6 +49,7 @@ public class DataGenerator {
     String testCase = configLoader.getProperty(StreamBenchConfig.TESTCASE).toLowerCase();
     String topic = configLoader.getProperty(StreamBenchConfig.KAFKA_TOPIC);
     String brokerList = configLoader.getProperty(StreamBenchConfig.KAFKA_BROKER_LIST);
+    int topicPartitions = Integer.parseInt(configLoader.getProperty(StreamBenchConfig.KAFKA_TOPIC_PARTITIONS));
     int intervalSpan = Integer.parseInt(configLoader.getProperty(StreamBenchConfig.DATAGEN_INTERVAL_SPAN));
     long recordsPerInterval = Long.parseLong(configLoader.getProperty(StreamBenchConfig.DATAGEN_RECORDS_PRE_INTERVAL));
     long totalRecords = Long.parseLong(configLoader.getProperty(StreamBenchConfig.DATAGEN_TOTAL_RECORDS));
@@ -59,6 +61,7 @@ public class DataGenerator {
     DataGeneratorConfig dataGeneratorConf = new DataGeneratorConfig(testCase, brokerList, kMeansFile, kMeansFileOffset,
         userVisitsFile, userVisitsFileOffset, dfsMaster, recordLength, intervalSpan, topic, recordsPerInterval,
         totalRounds, totalRecords, debugMode);
+    MetricsUtil.createTopic(brokerList, topic, topicPartitions);
 
     // Create thread pool and submit producer task
     int producerNumber = Integer.parseInt(configLoader.getProperty(StreamBenchConfig.DATAGEN_PRODUCER_NUMBER));
