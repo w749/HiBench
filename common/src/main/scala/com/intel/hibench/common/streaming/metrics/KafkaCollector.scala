@@ -17,31 +17,31 @@
 
 package com.intel.hibench.common.streaming.metrics
 
-import java.io.{FileWriter, File}
-import java.util.Date
-import java.util.concurrent.{TimeUnit, Future, Executors}
+import com.codahale.metrics.{Histogram, UniformReservoir}
+import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
+import org.apache.kafka.common.serialization.StringDeserializer
 
-import com.codahale.metrics.{UniformReservoir, Histogram}
-import kafka.utils.{ZKStringSerializer, ZkUtils}
-import org.I0Itec.zkclient.ZkClient
-
+import java.io.{File, FileWriter}
+import java.util.concurrent.{Executors, Future, TimeUnit}
+import java.util.{Date, Properties}
+import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.mutable.ArrayBuffer
 
 
-class KafkaCollector(zkConnect: String, metricsTopic: String,
-    outputDir: String, sampleNumber: Int, desiredThreadNum: Int) extends LatencyCollector {
+class KafkaCollector(bootstrapServers: String, metricsTopic: String,
+                     outputDir: String, sampleNumber: Int, desiredThreadNum: Int) extends LatencyCollector {
 
   private val histogram = new Histogram(new UniformReservoir(sampleNumber))
   private val threadPool = Executors.newFixedThreadPool(desiredThreadNum)
   private val fetchResults = ArrayBuffer.empty[Future[FetchJobResult]]
 
   def start(): Unit = {
-    val partitions = getPartitions(metricsTopic, zkConnect)
+    val partitions = getPartitions(metricsTopic, bootstrapServers)
 
     println("Starting MetricsReader for kafka topic: " + metricsTopic)
 
     partitions.foreach(partition => {
-      val job = new FetchJob(zkConnect, metricsTopic, partition, histogram)
+      val job = new FetchJob(bootstrapServers, metricsTopic, partition, histogram)
       val fetchFeature = threadPool.submit(job)
       fetchResults += fetchFeature
     })
@@ -59,13 +59,17 @@ class KafkaCollector(zkConnect: String, metricsTopic: String,
     report(finalResults.minTime, finalResults.maxTime, finalResults.count)
   }
 
-  private def getPartitions(topic: String, zkConnect: String): Seq[Int] = {
-    val zkClient = new ZkClient(zkConnect, 6000, 6000, ZKStringSerializer)
-    try {
-      ZkUtils.getPartitionsForTopics(zkClient, Seq(topic)).flatMap(_._2).toSeq
-    } finally {
-      zkClient.close()
-    }
+  private def getPartitions(topic: String, bootstrapServers: String): Seq[Int] = {
+    val props = new Properties()
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, topic)
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
+
+    new KafkaConsumer(props)
+      .partitionsFor(topic)
+      .asScala
+      .map(_.partition())
   }
 
 

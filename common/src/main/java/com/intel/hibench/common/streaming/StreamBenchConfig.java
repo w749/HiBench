@@ -71,6 +71,8 @@ public class StreamBenchConfig {
   // =====================================
   public static String SPARK_BATCH_INTERVAL = "hibench.streambench.spark.batchInterval";
 
+  public static String SPARK_BATCH_MAX_MESSAGE_PARTITION = "hibench.streambench.spark.kafka.maxRatePerPartition";
+
   public static String SPARK_CHECKPOINT_PATH = "hibench.streambench.spark.checkpointPath";
 
   public static String SPARK_ENABLE_WAL = "hibench.streambench.spark.enableWAL";

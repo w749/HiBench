@@ -17,9 +17,11 @@
 package com.intel.hibench.common.streaming.metrics
 
 import com.intel.hibench.common.streaming.Platform
-import kafka.admin.AdminUtils
-import kafka.utils.ZKStringSerializer
-import org.I0Itec.zkclient.ZkClient
+import org.apache.kafka.clients.admin.{AdminClient, NewTopic}
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.common.serialization.StringDeserializer
+
+import java.util.{Collections, Properties}
 
 object MetricsUtil {
 
@@ -33,18 +35,26 @@ object MetricsUtil {
     topic
   }
 
-  def createTopic(zkConnect: String, topic: String, partitions: Int): Unit = {
-    val zkClient = new ZkClient(zkConnect, 6000, 6000, ZKStringSerializer)
+  def createTopic(bootstrapServers: String, topic: String, partitions: Int): Unit = {
+    val props = new Properties()
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, topic)
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
+    val adminClient = AdminClient.create(props)
     try {
-      AdminUtils.createTopic(zkClient, topic, partitions, 1)
-      while (!AdminUtils.topicExists(zkClient, topic)) {
-        Thread.sleep(100)
+      if (!adminClient.listTopics().names().get().contains(topic)) {
+        val newTopic = new NewTopic(topic, partitions, 1)
+        adminClient.createTopics(Collections.singleton(newTopic))
+        while (!adminClient.listTopics().names().get().contains(topic)) {
+          Thread.sleep(100)
+        }
       }
     } catch {
       case e: Exception =>
         throw e
     } finally {
-      zkClient.close()
+      adminClient.close()
     }
   }
 }
