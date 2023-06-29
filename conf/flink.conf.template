@@ -3,11 +3,10 @@ hibench.streambench.flink.home                   /PATH/TO/YOUR/FLINK/HOME
 hibench.flink.master                             HOSTNAME:PORT
 
 # Default parallelism of flink job
-hibench.streambench.flink.parallelism            20
+hibench.streambench.flink.parallelism            100
+hibench.streambench.flink.jobmanager.memory      4
+hibench.streambench.flink.taskmanager.memory     4
+hibench.streambench.flink.slots                  5
 hibench.streambench.flink.bufferTimeout          10
 hibench.streambench.flink.checkpointDuration     1000
 
-hibench.flink.batch.jobmanager.memory            5
-hibench.flink.batch.taskmanager.memory           5
-hibench.flink.batch.parallelism                  20
-hibench.flink.batch.slots                        5

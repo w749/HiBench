@@ -246,7 +246,18 @@ function run_gearpump_app(){
 }
 
 function run_flink_job(){
-    CMD="${FLINK_HOME}/bin/flink run -p ${STREAMBENCH_FLINK_PARALLELISM} -m ${HIBENCH_FLINK_MASTER} $@ ${STREAMBENCH_FLINK_JAR} ${SPARKBENCH_PROPERTIES_FILES}"
+    CMD="${FLINK_HOME}/bin/flink run \
+        -Dpipeline.name=FlinkStreamingJob \
+        -Dyarn.application.name=FlinkStreamingJob \
+        -Dtaskmanager.network.sort-shuffle.min-parallelism=1 \
+        -p ${STREAMBENCH_FLINK_PARALLELISM} \
+        -Djobmanager.memory.process.size=$[${STREAMBENCH_FLINK_JOB_MANAGER_MEMORY} * 1024]mb \
+        -Dtaskmanager.memory.process.size=$[${STREAMBENCH_FLINK_TASK_MANAGER_MEMORY} * 1024]mb \
+        -Dtaskmanager.numberOfTaskSlots=${STREAMBENCH_FLINK_NUM_SLOTS} \
+        -m ${HIBENCH_FLINK_MASTER} \
+         $@ \
+         ${STREAMBENCH_FLINK_JAR} \
+         ${SPARKBENCH_PROPERTIES_FILES}"
     echo -e "${BGreen}Submit Flink Job: ${Green}$CMD${Color_Off}"
     execute_withlog $CMD
 }
@@ -257,10 +268,10 @@ function run_flink_batch_job(){
         -Dpipeline.name=FlinkBatchJob \
         -Dyarn.application.name=FlinkBatchJob \
         -Dtaskmanager.network.sort-shuffle.min-parallelism=1 \
-        -p ${FLINK_BATCH_PARALLELS} \
-        -Djobmanager.memory.process.size=$[${JOB_MANAGER_MEMORY} * 1024]mb \
-        -Dtaskmanager.memory.process.size=$[${TASK_MANAGER_MEMORY} * 1024]mb \
-        -Dtaskmanager.numberOfTaskSlots=${NUM_SLOTS} \
+        -p ${STREAMBENCH_FLINK_PARALLELISM} \
+        -Djobmanager.memory.process.size=$[${STREAMBENCH_FLINK_JOB_MANAGER_MEMORY} * 1024]mb \
+        -Dtaskmanager.memory.process.size=$[${STREAMBENCH_FLINK_TASK_MANAGER_MEMORY} * 1024]mb \
+        -Dtaskmanager.numberOfTaskSlots=${STREAMBENCH_FLINK_NUM_SLOTS} \
         -c $1 \
         ${FLINK_BATCH_JAR} \
         $2 $3"
